@@ -167,6 +167,7 @@ class Notifier < ActionMailer::Base
     return if sent_to.any? { |a| a =~ /no\-?reply|postmaster|mailer\-daemon/i }
     return if email.from.to_s =~ /no\-?reply|postmaster|mailer\-daemon/i
     return if email.subject =~ /^undelivered mail returned to sender|^returned mail|^delivery failure/i
+    logger.info "PAST SUBJECT"
     return if email.message_id =~ Message::MESSAGE_ID_RE and m = Message.unscoped { Message.where(id: $1).first } and m.code_hash == $2 # just sent, looping back into the receiver
     return if ProcessedMessage.where(header_message_id: email.message_id).any?
     return unless get_site(email)
