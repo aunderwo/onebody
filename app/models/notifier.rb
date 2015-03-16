@@ -160,6 +160,7 @@ class Notifier < ActionMailer::Base
   def receive(email)
     sent_to = Array(email.cc) + Array(email.to) # has to be reversed (cc first) so that group replies work right
 
+    logger.info "START"
     return unless email.from.present?
     return if email['Auto-Submitted'] and not %w(false no).include?(email['Auto-Submitted'].to_s.downcase)
     return if email['Return-Path'] and ['<>', ''].include?(email['Return-Path'].to_s)
@@ -170,6 +171,7 @@ class Notifier < ActionMailer::Base
     return if ProcessedMessage.where(header_message_id: email.message_id).any?
     return unless get_site(email)
 
+    logger.info "GOT TO DESTINATIONS"
     destinations = sent_to.map do |address|
       address, domain = address.strip.downcase.split('@')
       next unless address.present? and domain.present?
