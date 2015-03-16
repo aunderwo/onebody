@@ -172,6 +172,7 @@ class Notifier < ActionMailer::Base
     logger.info "PAST JUST SENT"
     return if ProcessedMessage.where(header_message_id: email.message_id).any?
     logger.info "PAST processed"
+    logger.info ("Get sitet #{get_site(email)}")
     return unless get_site(email)
 
     logger.info "GOT TO DESTINATIONS"
