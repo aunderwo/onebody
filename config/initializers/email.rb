@@ -1,5 +1,5 @@
 begin
-  settings = YAML::load_file(File.dirname(__FILE__) + '/../email.yml')[Rails.env]['smtp']
+  settings = YAML::load(ERB.new(File.read(File.dirname(__FILE__) + '/../email.yml')).result)[Rails.env]['smtp']
 rescue
   # nothing
 else
