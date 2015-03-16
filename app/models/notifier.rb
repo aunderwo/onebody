@@ -168,8 +168,7 @@ class Notifier < ActionMailer::Base
     return if email.subject =~ /^undelivered mail returned to sender|^returned mail|^delivery failure/i
     return if email.message_id =~ Message::MESSAGE_ID_RE and m = Message.unscoped { Message.where(id: $1).first } and m.code_hash == $2 # just sent, looping back into the receiver
     return if ProcessedMessage.where(header_message_id: email.message_id).any?
-
-    logger.info "GOT HERE"
+    return unless get_site(email)
 
     destinations = sent_to.map do |address|
       address, domain = address.strip.downcase.split('@')
