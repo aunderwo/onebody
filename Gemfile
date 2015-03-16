@@ -1,5 +1,6 @@
 require 'erb'
 require 'yaml'
+ruby '2.1.5'
 
 source 'http://rubygems.org'
 
@@ -101,4 +102,6 @@ end
 
 group :production do
   gem 'newrelic_rpm', '~> 3.9.9.275'
+  gem 'rails_12factor'
+
 end
