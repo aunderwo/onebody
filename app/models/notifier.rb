@@ -159,13 +159,7 @@ class Notifier < ActionMailer::Base
 
   def receive(email)
     sent_to = Array(email.cc) + Array(email.to) # has to be reversed (cc first) so that group replies work right
-    logger.info email.from.present?
-    logger.info email['Auto-Submitted'] and not %w(false no).include?(email['Auto-Submitted'].to_s.downcase)
-    logger.info email['Return-Path'] and ['<>', ''].include?(email['Return-Path'].to_s)
-    logger.info sent_to.any? { |a| a =~ /no\-?reply|postmaster|mailer\-daemon/i }
-    logger.info email.from.to_s =~ /no\-?reply|postmaster|mailer\-daemon/i
-    logger.info email.subject =~ /^undelivered mail returned to sender|^returned mail|^delivery failure/i
-    logger.info email.message_id =~ Message::MESSAGE_ID_RE and m = Message.unscoped { Message.where(id: $1).first } and m.code_hash == $2
+
     return unless email.from.present?
     return if email['Auto-Submitted'] and not %w(false no).include?(email['Auto-Submitted'].to_s.downcase)
     return if email['Return-Path'] and ['<>', ''].include?(email['Return-Path'].to_s)
@@ -174,7 +168,8 @@ class Notifier < ActionMailer::Base
     return if email.subject =~ /^undelivered mail returned to sender|^returned mail|^delivery failure/i
     return if email.message_id =~ Message::MESSAGE_ID_RE and m = Message.unscoped { Message.where(id: $1).first } and m.code_hash == $2 # just sent, looping back into the receiver
     return if ProcessedMessage.where(header_message_id: email.message_id).any?
-    return unless get_site(email)
+
+    logger.info "GOT HERE"
 
     destinations = sent_to.map do |address|
       address, domain = address.strip.downcase.split('@')
