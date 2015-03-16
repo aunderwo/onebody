@@ -2,7 +2,9 @@
 # Settings here are used to generate your crontab configuration when running the "whenever" command.
 ---
 development:
+
 test:
+
 production:
   smtp:
     address: "smtp.mailgun.org"
