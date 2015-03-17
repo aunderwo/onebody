@@ -160,22 +160,16 @@ class Notifier < ActionMailer::Base
   def receive(email)
     sent_to = Array(email.cc) + Array(email.to) # has to be reversed (cc first) so that group replies work right
 
-    logger.info "START"
     return unless email.from.present?
     return if email['Auto-Submitted'] and not %w(false no).include?(email['Auto-Submitted'].to_s.downcase)
     return if email['Return-Path'] and ['<>', ''].include?(email['Return-Path'].to_s)
     return if sent_to.any? { |a| a =~ /no\-?reply|postmaster|mailer\-daemon/i }
     return if email.from.to_s =~ /no\-?reply|postmaster|mailer\-daemon/i
     return if email.subject =~ /^undelivered mail returned to sender|^returned mail|^delivery failure/i
-    logger.info "PAST SUBJECT"
     return if email.message_id =~ Message::MESSAGE_ID_RE and m = Message.unscoped { Message.where(id: $1).first } and m.code_hash == $2 # just sent, looping back into the receiver
-    logger.info "PAST JUST SENT"
     return if ProcessedMessage.where(header_message_id: email.message_id).any?
-    logger.info "PAST processed"
-    logger.info ("Get sitet #{get_site(email)}")
     return unless get_site(email)
 
-    logger.info "GOT TO DESTINATIONS"
     destinations = sent_to.map do |address|
       address, domain = address.strip.downcase.split('@')
       next unless address.present? and domain.present?
@@ -314,7 +308,7 @@ class Notifier < ActionMailer::Base
   def get_site(email)
     # prefer the to address
     (Array(email.cc) + Array(email.to)).each do |address|
-      return Site.current if Site.current = Site.where(host: address.downcase.split('@').last).first
+      return Site.current if Site.current == Site.where(host: address.downcase.split('@').last).first || Site.current.email_host == address.downcase.split('@').last
     end
     # fallback if to address was rewritten
     # Calvin College in MI is known to rewrite our from/reply-to addresses
