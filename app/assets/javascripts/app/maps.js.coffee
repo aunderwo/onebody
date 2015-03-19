@@ -26,3 +26,24 @@ if (div = $('#map')).length > 0
   #L.control.zoom(position: 'bottomright').addTo(map)
   marker = L.marker([lat, lon]).addTo(map)
   marker.bindPopup("<p>#{div.data('address')}</p>") # data-address must be sanitized already
+
+if (div = $('#directory_map')).length > 0
+  $('#directory_map').height($(window).height()-($('.header').outerHeight() + $('.content-header').outerHeight() + $('.footer').outerHeight() + 40)) # set height of map div
+  
+  protocol = div.data('protocol')
+  map = L.map 'directory_map',
+  tiles = L.tileLayer "#{protocol}://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: div.data('notice')
+    maxZoom: 18
+  tiles.addTo(map)
+  $.getJSON "/map_view_details.json", (marker_data) ->
+    markers = new L.MarkerClusterGroup
+    for data in marker_data
+      marker = L.marker(new L.LatLng(data.latitude, data.longitude), { title: data.name })
+      marker.bindPopup(data.name)
+      markers.addLayer(marker)
+    map.addLayer(markers)
+    map.fitBounds(markers, {maxZoom: 15})
+
+
+

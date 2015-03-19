@@ -1,6 +1,6 @@
 class FamiliesController < ApplicationController
 
-  load_and_authorize_resource except: [:show, :hashify, :batch, :select, :schema]
+  load_and_authorize_resource except: [:show, :hashify, :batch, :select, :schema, :directory_map, :map_view_details]
 
   def index
     respond_to do |format|
@@ -141,6 +141,22 @@ class FamiliesController < ApplicationController
 
   def schema
     render xml: Family.columns.map { |c| {name: c.name, type: c.type} }
+  end
+
+  def directory_map
+  end
+
+  def map_view_details
+    mapable_families = Family.all.select{|f| f.mapable?}
+    map_view_details = []
+    mapable_families.each do |family|
+      map_view_details << family.attributes.select{|key, value| ['longitude', 'latitude', 'name'].include?(key)}
+    end
+    respond_to do |format|
+      format.json {
+        render json: map_view_details
+      }
+    end
   end
 
   private

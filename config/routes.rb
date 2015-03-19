@@ -170,6 +170,8 @@ OneBody::Application.routes.draw do
     end
   end
 
+  get '/map_view_details' => 'families#map_view_details'
+  get '/directory_map' => 'families#directory_map', via: :get, as: :directory_map
 
   get 'pages/*path' => 'pages#show_for_public', via: :get, as: :page_for_public
 
